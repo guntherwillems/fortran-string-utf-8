@@ -96,53 +96,53 @@ print *, ">" // s2 // "<" ! Output: >Test string<
 
 ### substr
 
-Get a substring of a UTF-8 characters array 'str', beginning at character index 'start_index' and take 'length' characters.
-Negative numbers count backwards. 'start_index' backwards from the end of the string, length backwards from 'start_index'. 
-If no length is given, take until end of string.
-Index of the first character is 1.
-String boundary limits cannot be exceeded.
+Get a substring of a UTF-8 characters array 'str', beginning at character index 'start_index' and take 'length' characters.  
+Negative numbers count backwards. 'start_index' backwards from the end of the string, length backwards from 'start_index'.  
+If no length is given, take until end of string.  
+Index of the first character is 1.  
+String boundary limits cannot be exceeded.  
 'str' and the return value are UTF-8 character arrays.
 
-Syntax:
-substr(str, start_index, length)
+Syntax:  
+substr(str, start_index, length)  
 substr(str, start_index)
 
 Examples:
 
 For: s = chars_array("1234567890")
 
-substr(s, 1, 3) => "123"
-substr(s, 8, 2) => "89"
-substr(s, -5, 3) => "678"
-substr(s, -5, -3) => "456"
-substr(s, 5, -3) => "345"
+substr(s, 1, 3) => "123"  
+substr(s, 8, 2) => "89"  
+substr(s, -5, 3) => "678"  
+substr(s, -5, -3) => "456"  
+substr(s, 5, -3) => "345"  
 substr(s, -4, 4) => "7890"
 
-substr(s, -10, 3) => "123"
+substr(s, -10, 3) => "123"  
 substr(s, 0, 3) => "123"
 
 Past string boundaries:
 
-substr(s, 11, 2) => "0"
-substr(s, 11, 1) => "0"
+substr(s, 11, 2) => "0"  
+substr(s, 11, 1) => "0"  
 substr(s, 10, 2) => "0"
 
-substr(s, 100, -100) => "1234567890"
-substr(s, -100, 100) => "1234567890"
-substr(s, -100, 1) => "1"
-substr(s, 5, -100) => "12345"
-substr(s, 2, 100) => "234567890"
-substr(s, 100, 1) => "0"
+substr(s, 100, -100) => "1234567890"  
+substr(s, -100, 100) => "1234567890"  
+substr(s, -100, 1) => "1"  
+substr(s, 5, -100) => "12345"  
+substr(s, 2, 100) => "234567890"  
+substr(s, 100, 1) => "0"  
 substr(s, 100, -3) => "890"
 
 Only start index:
 
-substr(s_chars, 1) => "1234567890"
-substr(s_chars, 5) => "567890"
-substr(s_chars, 10) => "0"
+substr(s_chars, 1) => "1234567890"  
+substr(s_chars, 5) => "567890"  
+substr(s_chars, 10) => "0"  
 substr(s_chars, -2) => "90"
 
-substr(s_chars, 11) => "0"
+substr(s_chars, 11) => "0"  
 substr(s_chars, -100) => "1234567890"
 
 ~~~fortran
@@ -201,7 +201,7 @@ print *, ">" // chars(sub_chars) // "<" ! Output: >string<
 ### indexof
 
 Get the index of the 'searchstring' in the string 'str'. Start checking from index 'start_index'.
-Return -1 if 'searchstring' is empty or if it is not found.
+Return -1 if 'searchstring' is empty or if it is not found.  
 'str' and 'searchstring' are UTF-8 character arrays.
 
 Syntax: indexof(str, searchstring, start_index)
