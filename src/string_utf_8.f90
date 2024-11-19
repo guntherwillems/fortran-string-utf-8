@@ -128,6 +128,8 @@ contains
    !> and take 'length' characters. Index of the first character is 1.
    !> Negative numbers count backwards. 'start_index' backwards from the end of the string,
    !> length backwards from 'start_index'. If no length is given, take until end of string from 'start_index'.
+   !> If start_index exceeds the string boundary limits, return an empty string.
+   !> (Similar to C++ std::substr() and c# String.Substring.)
    !> 'str' and the return value are UTF-8 character arrays.
    function substr(str, start_index, length)
       type(char_utf), intent(in) :: str(:)
@@ -243,7 +245,8 @@ contains
    !> total_length = total length of the string.
    !> start_index = start index (can be negative).
    !> length = how many characters to count from the start_index (can be negative for backwards).
-   !> String boundary limits cannot be exceeded.
+   !> If start_index exceeds the string boundary limits, return an empty string.
+   !> (Similar to C++ std::substr() and c# String.Substring.)
    !> If length is 0, start at position 1 and end equals to 0.
    subroutine calc_start_end(total_length, start_index, length, pos_start, pos_end)
       integer, intent(in) :: total_length
@@ -256,7 +259,9 @@ contains
       integer :: last  ! end index limited to boundary. (end is a reserved word)
       integer :: start_ref ! The reference position from where the length must be added or subtracted.
 
-      if (total_length == 0 .or. length == 0) then
+      if (total_length == 0 .or. length == 0 &
+         .or. start_index == 0 &
+         .or. start_index < -total_length .or. start_index > total_length) then
          pos_start = 1
          pos_end = 0
          return

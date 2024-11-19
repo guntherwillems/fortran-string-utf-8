@@ -30,29 +30,30 @@ contains
       if (chars(substr(s_chars, 8, 2)) /= "89") print *, "Error ", 8, 2
 
       ! Past boundaries
-      if (chars(substr(s_chars, 11, 2)) /= "0") print *, "Error ", 11, 2
-      if (chars(substr(s_chars, 11, 1)) /= "0") print *, "Error ", 11, 1
+      if (chars(substr(s_chars, 11, 2)) /= "") print *, "Error ", 11, 2
+      if (chars(substr(s_chars, 11, 1)) /= "") print *, "Error ", 11, 1
       if (chars(substr(s_chars, 10, 2)) /= "0") print *, "Error ", 10, 2
+      if (chars(substr(s_chars, 0, 2)) /= "") print *, "Error ", 0, 2 ! Index starts at 1
 
       ! Past boundaries
-      if (chars(substr(s_chars, 100, -100)) /= "1234567890") print *, "Error ", 100, -100
-      if (chars(substr(s_chars, -100, 100)) /= "1234567890") print *, "Error ", -100, 100
-      if (chars(substr(s_chars, -100, 1)) /= "1") print *, "Error ", -100, 1
+      if (chars(substr(s_chars, 100, -100)) /= "") print *, "Error ", 100, -100
+      if (chars(substr(s_chars, -100, 100)) /= "") print *, "Error ", -100, 100
+      if (chars(substr(s_chars, -100, 1)) /= "") print *, "Error ", -100, 1
       if (chars(substr(s_chars, 5, -100)) /= "12345") print *, "Error ", 5, -100
       if (chars(substr(s_chars, 2, 100)) /= "234567890") print *, "Error ", 2, 100
-      if (chars(substr(s_chars, 100, 1)) /= "0") print *, "Error ", 100, 1
-      if (chars(substr(s_chars, 100, -3)) /= "890") print *, "Error ", 100, -3
+      if (chars(substr(s_chars, 100, 1)) /= "") print *, "Error ", 100, 1
+      if (chars(substr(s_chars, 100, -3)) /= "") print *, "Error ", 100, -3
 
-      if (chars(substr(s_chars, -10, 3)) /= "123") print *, "Error ", 8, 2
-      if (chars(substr(s_chars, 0, 3)) /= "123") print *, "Error ", 0, 2 ! Same as previous
+      if (chars(substr(s_chars, -10, 3)) /= "123") print *, "Error ", -10, 3
+      if (chars(substr(s_chars, 1, 3)) /= "123") print *, "Error ", 1, 3 ! Same as previous
 
       ! Only start_index
       if (chars(substr(s_chars, 1)) /= "1234567890") print *, "Error ", 1
       if (chars(substr(s_chars, 5)) /= "567890") print *, "Error ", 5
       if (chars(substr(s_chars, 10)) /= "0") print *, "Error ", 10
       if (chars(substr(s_chars, -2)) /= "90") print *, "Error ", -2
-      if (chars(substr(s_chars, 11)) /= "0") print *, "Error ", 11 ! past boundaries
-      if (chars(substr(s_chars, -100)) /= "1234567890") print *, "Error ", 100 ! past boundaries
+      if (chars(substr(s_chars, 11)) /= "") print *, "Error ", 11 ! past boundary
+      if (chars(substr(s_chars, -100)) /= "") print *, "Error ", -100 ! past boundary
 
       ! Empty string results
       if (chars(substr(s_chars, 2, 0)) /= "") print *, "Error ", 2, 0

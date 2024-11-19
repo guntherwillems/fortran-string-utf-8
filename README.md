@@ -100,7 +100,7 @@ Get a substring of a UTF-8 characters array 'str', beginning at character index 
 Negative numbers count backwards. 'start_index' backwards from the end of the string, length backwards from 'start_index'.  
 If no length is given, take until end of string.  
 Index of the first character is 1.  
-String boundary limits cannot be exceeded.  
+If start_index exceeds the string boundary limits, return an empty string. (Similar to C++ std::substr() and c# String.Substring.)  
 'str' and the return value are UTF-8 character arrays.
 
 Syntax:  
@@ -119,21 +119,21 @@ substr(s, 5, -3) => "345"
 substr(s, -4, 4) => "7890"
 
 substr(s, -10, 3) => "123"  
-substr(s, 0, 3) => "123"
+substr(s, 1, 3) => "123"
 
 Past string boundaries:
 
-substr(s, 11, 2) => "0"  
-substr(s, 11, 1) => "0"  
+substr(s, 11, 2) => ""  
+substr(s, 11, 1) => ""  
 substr(s, 10, 2) => "0"
 
-substr(s, 100, -100) => "1234567890"  
-substr(s, -100, 100) => "1234567890"  
-substr(s, -100, 1) => "1"  
+substr(s, 100, -100) => ""  
+substr(s, -100, 100) => ""  
+substr(s, -100, 1) => ""  
 substr(s, 5, -100) => "12345"  
 substr(s, 2, 100) => "234567890"  
-substr(s, 100, 1) => "0"  
-substr(s, 100, -3) => "890"
+substr(s, 100, 1) => ""  
+substr(s, 100, -3) => ""
 
 Only start index:
 
@@ -142,8 +142,8 @@ substr(s_chars, 5) => "567890"
 substr(s_chars, 10) => "0"  
 substr(s_chars, -2) => "90"
 
-substr(s_chars, 11) => "0"  
-substr(s_chars, -100) => "1234567890"
+substr(s_chars, 11) => ""  
+substr(s_chars, -100) => ""
 
 ~~~fortran
 use string_utf_8
@@ -158,6 +158,8 @@ sub_chars = substr(s_chars, 1, 4)  ! Get the first 4 characters (as array of UTF
 print *, ">" // chars(sub_chars) // "<" ! Output: >test<
 
 sub_chars = substr(s_chars, -6, 6) ! Get the last 6 characters (as array of UTF-8 characters)
+print *, ">" // chars(sub_chars) // "<" ! Output: >string<
+sub_chars = substr(s_chars, -6) ! Same as previous
 print *, ">" // chars(sub_chars) // "<" ! Output: >string<
 ~~~
 
