@@ -28,7 +28,8 @@ module string_utf_8
    end type char_utf
 
    public :: char_utf
-   public :: chars_array, chars, substr, indexof, str_equal, calc_start_end, int_to_bit_string
+   public :: chars_array, chars, substr, indexof, str_equal, str_replace, str_replace_all, &
+   &calc_start_end, int_to_bit_string
 
 contains
 
@@ -42,13 +43,13 @@ contains
    !>   11110 (followed by 3 bytes starting with 10)
    !> are a multi byte UTF-8 character.
    function chars_array(chr) result(chars_a)
-      !> A native Fortran characters chring
+      !> A native Fortran characters string
       character(*), intent(in) :: chr
       !> An array of UTF-8 characters
       type(char_utf), allocatable :: chars_a(:)
 
       ! Prefixes (in decimal notation) that start a new UTF-8 character (bytes)
-      ! Binary: 0 110 1110 11110
+      ! Binary: 0, 110, 1110, 11110
       integer, parameter :: char_start_prefixes(4) = (/ 0, 6, 14, 30 /)
 
       integer, allocatable :: utf8_prefixes(:) ! UTF-8 prefixes array from the char bytes
@@ -89,11 +90,11 @@ contains
          end if
       end do
 
-      ! Generate the UTF-8 characters array
+      ! Generate the UTF-8 character array
       allocate(chars_a(chars_total))
 
       do i = 1, bytes_total
-         ! Code point if byte starts with (binary): 0 110 1110 11110
+         ! Code point if byte starts with (binary): 0, 110, 1110, 11110
          if (findloc(char_start_prefixes, utf8_prefixes(i), 1) /= 0) then
             char_pos = char_pos + 1
             chars_a(char_pos)%char = chr(i:i)
@@ -105,7 +106,7 @@ contains
 
    ! ---------------------------------------------------------------------------
 
-   !> Convert a UTF-8 characters array 'str' to native Fortran character string.
+   !> Convert a UTF-8 character array 'str' to a native Fortran character string.
    function chars(str)
       !> Array of UTF-8 characters
       type(char_utf), intent(in) :: str(:)
@@ -124,7 +125,7 @@ contains
 
    ! ---------------------------------------------------------------------------
 
-   !> Get a substring of a UTF-8 characters array 'str', beginning at character index 'start_index'
+   !> Get a substring of a UTF-8 character array 'str', beginning at character index 'start_index'
    !> and take 'length' characters. Index of the first character is 1.
    !> Negative numbers count backwards. 'start_index' backwards from the end of the string,
    !> length backwards from 'start_index'. If no length is given, take until end of string from 'start_index'.
@@ -137,10 +138,10 @@ contains
       integer, intent(in), optional :: length
       type(char_utf), allocatable :: substr(:)
 
-      integer :: length1
-      integer :: pos_start
-      integer :: pos_end
-      integer :: str_len
+      integer :: length1   ! New value for length
+      integer :: pos_start ! Start position result
+      integer :: pos_end   ! End position result
+      integer :: str_len   ! Length of str
 
       str_len = size(str)
 
@@ -159,27 +160,35 @@ contains
 
    !> Get the index of the 'searchstring' in the string 'str'. Start checking from index 'start_index'.
    !> Return -1 if 'searchstring' is empty or it is not found.
+   !> If no start_index is given, start from position 1.
    !> 'str' and 'searchstring' are UTF-8 character arrays.
    function indexof(str, searchstring, start_index)
       type(char_utf), intent(in) :: str(:)
       type(char_utf), intent(in) :: searchstring(:)
-      integer, intent(in) :: start_index
+      integer, intent(in), optional :: start_index
       integer :: indexof
 
-      integer :: match_count ! How many characters match from the search position
-      integer :: search_len  ! Lenght search string
-      integer :: str_len     ! Length given string
-      integer :: next_index  ! Next search index
+      integer :: match_count  ! How many characters match from the search position
+      integer :: search_len   ! Lenght search string
+      integer :: str_len      ! Length of str
+      integer :: next_index   ! Next search index
+      integer :: start_index1 ! start_index new value
       integer :: i, j
+
+      if (present(start_index)) then
+         start_index1 = start_index
+      else
+         start_index1 = 1
+      end if
 
       str_len = size(str)
       search_len = size(searchstring)
-      if (search_len == 0 .or. start_index < 1 .or. start_index > str_len) then
+      if (search_len == 0 .or. start_index1 < 1 .or. start_index1 > str_len) then
          indexof = -1
          return
       end if
 
-      do i = start_index, size(str)
+      do i = start_index1, size(str)
          ! First character tested with if statement. Faster than starting a do loop.
          if (str(i)%char == searchstring(1)%char) then
             match_count = 1
@@ -229,6 +238,63 @@ contains
 
    ! ---------------------------------------------------------------------------
 
+   !> Replace the first occurrence of str_old in string str with str_new.
+   !> Start checking from start_index. If no start_index is given, start searching from position 1.
+   !> str, str_old, str_new and the return value are UTF-8 character arrays.
+   function str_replace(str, str_old, str_new, start_index)
+      type(char_utf), intent(in) :: str(:)
+      type(char_utf), intent(in) :: str_old(:)
+      type(char_utf), intent(in) :: str_new(:)
+      type(char_utf), allocatable :: str_replace(:)
+      integer, intent(in), optional :: start_index
+
+      integer :: pos ! position
+      integer :: start_index1 ! start_index new value
+
+      if (present(start_index)) then
+         start_index1 = start_index
+      else
+         start_index1 = 1
+      end if
+
+      pos = indexof(str, str_old, start_index1)
+
+      if (pos /= -1) then
+         ! Concatenate: string until str_old + str_new + string after str_old
+         str_replace = [str(1:pos - 1), str_new, str(pos + size(str_old):)]
+      else
+         str_replace = str
+      end if
+   end function str_replace
+
+   ! ---------------------------------------------------------------------------
+
+   !> Replace all occurrences of str_old with str_new in UTF-8 character array str.
+   !> All parameters are UTF-8 character arrays.
+   function str_replace_all(str, str_old, str_new)
+      type(char_utf), intent(in) :: str(:)
+      type(char_utf), intent(in) :: str_old(:)
+      type(char_utf), intent(in) :: str_new(:)
+      type(char_utf), allocatable :: str_replace_all(:)
+
+      ! type(char_utf), allocatable :: str_result(:)
+      integer :: old_len, new_len ! Length of str_old and str_new
+      integer :: pos
+
+      old_len = size(str_old)
+      new_len = size(str_new)
+      str_replace_all = str
+
+      pos = indexof(str_replace_all, str_old, 1)
+      do while (pos /= -1)
+         ! Concatenate: string until str_old + str_new + string after str_old
+         str_replace_all = [str_replace_all(1:pos-1), str_new, str_replace_all(pos + old_len:)]
+         pos = indexof(str_replace_all, str_old, pos + new_len)
+      end do
+   end function
+
+   ! ---------------------------------------------------------------------------
+
    !> Convert an integer value to corresponding bits (binary). Return as a character string.
    !> int_to_bit_string(iachar('a')) => "01100001" (= 97 decimal)
    function int_to_bit_string(int)
@@ -248,6 +314,7 @@ contains
    !> If start_index exceeds the string boundary limits, return an empty string.
    !> (Similar to C++ std::substr() and c# String.Substring.)
    !> If length is 0, start at position 1 and end equals to 0.
+   !> Returns result: from pos_start till pos_end
    subroutine calc_start_end(total_length, start_index, length, pos_start, pos_end)
       integer, intent(in) :: total_length
       integer, intent(in) :: start_index
@@ -285,6 +352,7 @@ contains
          last = clip_int(start + length + 1, 1, total_length)
       end if
 
+      ! Swap start and end position if needed
       if (start > last) then
          pos_start = last
          pos_end = start
